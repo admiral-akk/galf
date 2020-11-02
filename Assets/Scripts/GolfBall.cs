@@ -5,16 +5,17 @@ using UnityEngine;
 public class GolfBall : MonoBehaviour
 {
     // Physics Properties
-    [SerializeField] private float acceleration = 20f;
-    [SerializeField] private float deccelerationMagnitude = 0.1f;
+    private float maxHitVelocity;
+    private float deccelerationMagnitude;
 
+    [Header("Physics Properties")]
     [SerializeField] private float maxDistance = 20f;
     [SerializeField] private float maxTime = 1f;
 
-    // Control Properties
+    [Header("Control Properties")]
     [SerializeField] private float maxPixelDrag = 100f;
 
-    // Game Object Properties
+    [Header("Game Object Properties")]
     [SerializeField] private GolfBallUI hitUI;
 
     // Local variables
@@ -26,10 +27,13 @@ public class GolfBall : MonoBehaviour
     private void Awake()
     {
         velocity = new Vector3();
+
     }
 
     void FixedUpdate()
     {
+        deccelerationMagnitude = -2 * maxDistance / (maxTime * maxTime);
+        maxHitVelocity = -deccelerationMagnitude * maxTime;
         hitUI.IsAiming(moving);
         if (velocity.magnitude < 0.001f)
         {
@@ -56,15 +60,15 @@ public class GolfBall : MonoBehaviour
             {
                 moving = false;
 
-                velocity.x = - acceleration * proposedHit.x / maxPixelDrag;
-                velocity.z = - acceleration * proposedHit.y / maxPixelDrag;
+                velocity.x = -maxHitVelocity * proposedHit.x / maxPixelDrag;
+                velocity.z = -maxHitVelocity * proposedHit.y / maxPixelDrag;
             }
         }
 
         Vector3 displacement = velocity * Time.deltaTime;
         transform.localPosition += displacement;
 
-        Vector3 decceleration = -velocity.normalized * deccelerationMagnitude;
+        Vector3 decceleration = velocity.normalized * deccelerationMagnitude * Time.deltaTime ;
 
         if (decceleration.magnitude > velocity.magnitude)
         {
@@ -72,6 +76,32 @@ public class GolfBall : MonoBehaviour
         } else
         {
             velocity += decceleration;
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Wall"))
+        {
+            Vector3 aggNormal = new Vector3();
+            foreach (ContactPoint contact in collision.contacts)
+            {
+                aggNormal += contact.normal;
+            }
+            aggNormal = aggNormal.normalized;
+            float similarity = Vector3.Dot(aggNormal, velocity);
+            velocity += -2 * similarity * aggNormal;
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.CompareTag("Goal"))
+        {
+            if (velocity.magnitude < 0.0001)
+            {
+                Debug.Log("Winner!");
+            }
         }
     }
 }
