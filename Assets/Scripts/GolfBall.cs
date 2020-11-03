@@ -95,9 +95,9 @@ public class GolfBall : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
+            state = InteractionState.Moving;
             velocity.x = -proposedHit.x;
             velocity.z = -proposedHit.y;
-            state = InteractionState.Moving; 
         }
     }
 
@@ -109,16 +109,19 @@ public class GolfBall : MonoBehaviour
 
     private void ApplyDeceleration()
     {
-        Vector3 decceleration = velocity.normalized * deccelerationMagnitude * Time.deltaTime;
-
-        if (decceleration.magnitude > velocity.magnitude)
+        if (state != InteractionState.Moving)
+        {
+            return;
+        }
+        float velocityLoss = deccelerationMagnitude * Time.deltaTime;
+        if (-velocityLoss > velocity.magnitude)
         {
             velocity = new Vector3();
             state = InteractionState.Waiting;
         }
         else
         {
-            velocity += decceleration;
+            velocity += velocity.normalized * velocityLoss;
         }
     }
 
