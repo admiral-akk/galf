@@ -5,7 +5,7 @@ using UnityEngine;
 public class GolfBall : MonoBehaviour
 {
     // Physics Properties
-    private float maxHitVelocity;
+    private float hitVelocity;
     private float deccelerationMagnitude;
 
     [Header("Physics Properties")]
@@ -19,64 +19,116 @@ public class GolfBall : MonoBehaviour
     [SerializeField] private GolfBallUI hitUI;
 
     // Local variables
-    Vector3 velocity;
+    private Vector3 velocity;
     private Vector3 clickStart;
-    private bool moving = false;
     private Vector3 proposedHit;
+    private InteractionState state;
+
+    enum InteractionState
+    {
+        Waiting,
+        Aiming,
+        Moving,
+    }
 
     private void Awake()
     {
         velocity = new Vector3();
-
+        deccelerationMagnitude = -2 * maxDistance / (maxTime * maxTime);
+        state = InteractionState.Waiting;
     }
 
-    void FixedUpdate()
+    private Vector3 CalculateProposedHit(Vector3 mouseStart, Vector3 mouseCurr)
     {
-        deccelerationMagnitude = -2 * maxDistance / (maxTime * maxTime);
-        maxHitVelocity = -deccelerationMagnitude * maxTime;
-        hitUI.IsAiming(moving);
-        if (velocity.magnitude < 0.001f)
+        // Rotate due to camera angle
+        Vector3 projectedMouseDrag = Quaternion.AngleAxis(-45, Vector3.forward) * (mouseCurr - mouseStart);
+
+        // Cap the amount that the hit can be dragged
+        if (projectedMouseDrag.magnitude > maxPixelDrag)
         {
-            if (Input.GetMouseButtonDown(0))
-            {
-                clickStart = Input.mousePosition;
-                moving = true;
-            }
-
-           if (Input.GetMouseButton(0))
-            {
-                proposedHit = (Input.mousePosition - clickStart);
-                if (proposedHit.magnitude > maxPixelDrag)
-                {
-                    proposedHit = proposedHit.normalized * maxPixelDrag;
-                }
-
-                float hitStrength = proposedHit.magnitude / maxPixelDrag;
-                Vector3 hitDirection = new Vector3(proposedHit.normalized.x, proposedHit.normalized.y, 0.0f);
-                hitUI.SetIndicator(hitDirection, hitStrength);
-            }
-
-            if (Input.GetMouseButtonUp(0) && moving)
-            {
-                moving = false;
-
-                velocity.x = -maxHitVelocity * proposedHit.x / maxPixelDrag;
-                velocity.z = -maxHitVelocity * proposedHit.y / maxPixelDrag;
-            }
+            projectedMouseDrag = projectedMouseDrag.normalized * maxPixelDrag;
         }
 
+        float hitStrength = projectedMouseDrag.magnitude / maxPixelDrag;
+
+        // Velocity doesn't scale linearly with hit strength since we want the
+        // travel distance to scale lineraly with hit strength.
+        hitVelocity = Mathf.Sqrt(-2 * maxDistance * hitStrength * deccelerationMagnitude);
+        Vector3 proposedVelocity = projectedMouseDrag.normalized * hitVelocity;
+        return proposedVelocity;
+    }
+
+    private void UpdateHitUI(Vector3 proposedHit)
+    {
+        hitUI.IsAiming(state == InteractionState.Aiming);
+        if (state != InteractionState.Aiming)
+        {
+            return;
+        }
+        Vector3 hitDirection = new Vector3(proposedHit.normalized.x, proposedHit.normalized.y, 0.0f);
+        float hitStrength = -proposedHit.magnitude * proposedHit.magnitude / (2 * maxDistance * deccelerationMagnitude);
+        hitUI.SetIndicator(hitDirection, hitStrength);
+    }
+
+    private void HandleInput()
+    {
+        if (state == InteractionState.Moving)
+        {
+            return;
+        }
+
+        if (Input.GetMouseButtonDown(0) && state == InteractionState.Waiting)
+        {
+            clickStart = Input.mousePosition;
+            state = InteractionState.Aiming;
+        }
+
+        if (state != InteractionState.Aiming)
+        {
+            return;
+        }
+
+        if (Input.GetMouseButton(0))
+        {
+            proposedHit = CalculateProposedHit(clickStart, Input.mousePosition);
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            velocity.x = -proposedHit.x;
+            velocity.z = -proposedHit.y;
+            state = InteractionState.Moving; 
+        }
+    }
+
+    private void ApplyMotion()
+    {
         Vector3 displacement = velocity * Time.deltaTime;
         transform.localPosition += displacement;
+    }
 
-        Vector3 decceleration = velocity.normalized * deccelerationMagnitude * Time.deltaTime ;
+    private void ApplyDeceleration()
+    {
+        Vector3 decceleration = velocity.normalized * deccelerationMagnitude * Time.deltaTime;
 
         if (decceleration.magnitude > velocity.magnitude)
         {
             velocity = new Vector3();
-        } else
+            state = InteractionState.Waiting;
+        }
+        else
         {
             velocity += decceleration;
         }
+    }
+
+    void FixedUpdate()
+    {
+        HandleInput();
+        UpdateHitUI(proposedHit);
+
+        ApplyMotion();
+        ApplyDeceleration();
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -98,7 +150,7 @@ public class GolfBall : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Goal"))
         {
-            if (velocity.magnitude < 0.0001)
+            if (state == InteractionState.Waiting)
             {
                 Debug.Log("Winner!");
             }
