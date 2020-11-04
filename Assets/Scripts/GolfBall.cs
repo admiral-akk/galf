@@ -26,16 +26,17 @@ public class GolfBall : MonoBehaviour
 
     enum InteractionState
     {
-        Waiting,
+        Ready,
         Aiming,
         Moving,
+        Paused,
     }
 
     private void Awake()
     {
         velocity = new Vector3();
         deccelerationMagnitude = -2 * maxDistance / (maxTime * maxTime);
-        state = InteractionState.Waiting;
+        state = InteractionState.Ready;
     }
 
     private Vector3 CalculateProposedHit(Vector3 mouseStart, Vector3 mouseCurr)
@@ -72,12 +73,12 @@ public class GolfBall : MonoBehaviour
 
     private void HandleInput()
     {
-        if (state == InteractionState.Moving)
+        if (state != InteractionState.Ready && state != InteractionState.Aiming)
         {
             return;
         }
 
-        if (Input.GetMouseButtonDown(0) && state == InteractionState.Waiting)
+        if (Input.GetMouseButtonDown(0) && state == InteractionState.Ready)
         {
             clickStart = Input.mousePosition;
             state = InteractionState.Aiming;
@@ -117,7 +118,7 @@ public class GolfBall : MonoBehaviour
         if (-velocityLoss > velocity.magnitude)
         {
             velocity = new Vector3();
-            state = InteractionState.Waiting;
+            state = InteractionState.Ready;
         }
         else
         {
@@ -153,9 +154,10 @@ public class GolfBall : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Goal"))
         {
-            if (state == InteractionState.Waiting)
+            if (state == InteractionState.Ready)
             {
-                Debug.Log("Winner!");
+                state = InteractionState.Paused;
+                LevelManager.instance.TriggerWinScreen();
             }
         }
     }
