@@ -3,17 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System;
 
 public class LevelManager : MonoBehaviour
 {
     [SerializeField] private GameObject winScreen;
-    [SerializeField] private int levelNumber;
+    private int levelNumber;
     public static LevelManager instance;
 
     // Start is called before the first frame update
     void Awake()
     {
         instance = this;
+        levelNumber = Int32.Parse(SceneManager.GetActiveScene().name.Replace("Level", ""));
     }
 
     public void TriggerWinScreen()
