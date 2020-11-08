@@ -17,6 +17,7 @@ public class GolfBall : MonoBehaviour
     private Vector3 velocity;
     private Vector3 clickStart;
     private Vector3 proposedHit;
+    private Vector3 startHit;
     private InteractionState state;
 
     public static GolfBall instance;
@@ -34,6 +35,7 @@ public class GolfBall : MonoBehaviour
         instance = this;
         velocity = new Vector3();
         state = InteractionState.Ready;
+        startHit = transform.position;
     }
 
     private Vector3 CalculateProposedHit(Vector3 mouseStart, Vector3 mouseCurr)
@@ -133,6 +135,7 @@ public class GolfBall : MonoBehaviour
         {
             velocity = new Vector3();
             state = InteractionState.Ready;
+            startHit = transform.position;
         }
         else
         {
