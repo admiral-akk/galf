@@ -4,13 +4,8 @@ using UnityEngine;
 
 public class GolfBall : MonoBehaviour
 {
-    // Physics Properties
-    private float hitVelocity;
-    private float deccelerationMagnitude;
-
     [Header("Physics Properties")]
-    [SerializeField] private float maxDistance = 20f;
-    [SerializeField] private float maxTime = 1f;
+    [SerializeField] private float maxVelocity = 25f;
 
     [Header("Control Properties")]
     [SerializeField] private float maxPixelDrag = 100f;
@@ -24,6 +19,8 @@ public class GolfBall : MonoBehaviour
     private Vector3 proposedHit;
     private InteractionState state;
 
+    public static GolfBall instance;
+
     enum InteractionState
     {
         Ready,
@@ -34,8 +31,8 @@ public class GolfBall : MonoBehaviour
 
     private void Awake()
     {
+        instance = this;
         velocity = new Vector3();
-        deccelerationMagnitude = -2 * maxDistance / (maxTime * maxTime);
         state = InteractionState.Ready;
     }
 
@@ -52,10 +49,7 @@ public class GolfBall : MonoBehaviour
 
         float hitStrength = projectedMouseDrag.magnitude / maxPixelDrag;
 
-        // Velocity doesn't scale linearly with hit strength since we want the
-        // travel distance to scale lineraly with hit strength.
-        hitVelocity = Mathf.Sqrt(-2 * maxDistance * hitStrength * deccelerationMagnitude);
-        Vector3 proposedVelocity = projectedMouseDrag.normalized * hitVelocity;
+        Vector3 proposedVelocity = projectedMouseDrag.normalized * hitStrength * maxVelocity;
         return proposedVelocity;
     }
 
@@ -67,7 +61,7 @@ public class GolfBall : MonoBehaviour
             return;
         }
         Vector3 hitDirection = new Vector3(proposedHit.normalized.x, proposedHit.normalized.y, 0.0f);
-        float hitStrength = -proposedHit.magnitude * proposedHit.magnitude / (2 * maxDistance * deccelerationMagnitude);
+        float hitStrength =  proposedHit.magnitude / maxVelocity;
         hitUI.SetIndicator(hitDirection, hitStrength);
     }
 
@@ -108,22 +102,44 @@ public class GolfBall : MonoBehaviour
         transform.localPosition += displacement;
     }
 
+    private Ground GetGround()
+    {
+        RaycastHit hit;
+        // Does the ray intersect any objects excluding the player layer
+        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hit, Mathf.Infinity, Ground.groundBitMask))
+        {
+            return hit.collider.gameObject.GetComponent<Ground>();
+        }
+        return null;
+    }
+
     private void ApplyDeceleration()
     {
         if (state != InteractionState.Moving)
         {
             return;
         }
-        float velocityLoss = deccelerationMagnitude * Time.deltaTime;
-        if (-velocityLoss > velocity.magnitude)
+
+        Ground ground = GetGround();
+
+        if (ground == null)
+        {
+            Debug.LogError("No ground!");
+            return;
+        }
+
+        Vector3 frictionVelocityDelta = ground.Friction(velocity) * Time.deltaTime;
+        if (velocity == Vector3.zero || frictionVelocityDelta.magnitude > velocity.magnitude)
         {
             velocity = new Vector3();
             state = InteractionState.Ready;
         }
         else
         {
-            velocity += velocity.normalized * velocityLoss;
-        }
+            velocity += frictionVelocityDelta;
+            }
+
+        GetComponent<Rigidbody>().velocity = velocity;
     }
 
     void FixedUpdate()
@@ -146,7 +162,8 @@ public class GolfBall : MonoBehaviour
             }
             aggNormal = aggNormal.normalized;
             float similarity = Vector3.Dot(aggNormal, velocity);
-            velocity += -2 * similarity * aggNormal;
+            velocity = -2 * similarity * aggNormal + velocity;
+            GetComponent<Rigidbody>().velocity = velocity;
         }
     }
 
@@ -157,7 +174,7 @@ public class GolfBall : MonoBehaviour
             if (state == InteractionState.Ready)
             {
                 state = InteractionState.Paused;
-                LevelManager.instance.TriggerWinScreen();
+                GameManager.instance.Win();
             }
         }
     }

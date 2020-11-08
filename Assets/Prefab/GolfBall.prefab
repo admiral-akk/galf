@@ -308,7 +308,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 112
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!114 &8287019369246565245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -321,8 +321,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17da0c0d47e2847cba377d7125d14cc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxDistance: 25
-  maxTime: 2
+  maxVelocity: 25
   maxPixelDrag: 100
   hitUI: {fileID: 8287019369282836086}
 --- !u!1 &8287019369282836087

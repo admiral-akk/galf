@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -7,20 +8,18 @@ using System;
 
 public class LevelManager : MonoBehaviour
 {
-    [SerializeField] private GameObject winScreen;
     private int levelNumber;
     public static LevelManager instance;
 
-    // Start is called before the first frame update
     void Awake()
     {
         instance = this;
-        levelNumber = Int32.Parse(SceneManager.GetActiveScene().name.Replace("Level", ""));
-    }
+        try { 
+            levelNumber = Int32.Parse(SceneManager.GetActiveScene().name.Replace("Level", ""));
+        } catch (FormatException f)
+        {
 
-    public void TriggerWinScreen()
-    {
-        winScreen.SetActive(true);
+        }
     }
 
     public void LoadLevel(Button b)
@@ -36,6 +35,11 @@ public class LevelManager : MonoBehaviour
     public void LoadCurrentLevel()
     {
         SceneManager.LoadScene("Level" + levelNumber.ToString());
+    }
+
+    public bool HasNextLevel()
+    {
+        return Application.CanStreamedLevelBeLoaded("Level" + (1 + levelNumber).ToString());
     }
 
     public void LoadNextLevel()
