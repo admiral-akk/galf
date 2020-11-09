@@ -4,8 +4,18 @@ using UnityEngine;
 
 public class Water : Ground
 {
-    override public Vector3 Friction(Vector3 currVelocity)
+    override public bool HasEffect()
     {
-        return new Vector3();
+        return true;
+    }
+
+    public override void Effect(GolfBall ball)
+    {
+        ball.ResetBall();
+    }
+
+    override public bool HasFriction()
+    {
+        return false;
     }
 }

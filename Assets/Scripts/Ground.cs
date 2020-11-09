@@ -6,5 +6,21 @@ abstract public class Ground : MonoBehaviour
 {
     public const int groundBitMask = 1 << 9;
 
-    abstract public Vector3 Friction(Vector3 currVelocity);
+
+    virtual public bool HasEffect()
+    {
+        return false;
+    }
+
+    virtual public void Effect(GolfBall ball)
+    {
+    }
+
+    virtual public bool HasFriction() {
+        return true;
+    }
+
+    virtual public Vector3 Friction(Vector3 currVelocity) {
+        return new Vector3();
+    }
 }

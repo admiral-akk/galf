@@ -63,7 +63,7 @@ public class GolfBall : MonoBehaviour
             return;
         }
         Vector3 hitDirection = new Vector3(proposedHit.normalized.x, proposedHit.normalized.y, 0.0f);
-        float hitStrength =  proposedHit.magnitude / maxVelocity;
+        float hitStrength = proposedHit.magnitude / maxVelocity;
         hitUI.SetIndicator(hitDirection, hitStrength);
     }
 
@@ -115,7 +115,7 @@ public class GolfBall : MonoBehaviour
         return null;
     }
 
-    private void ApplyDeceleration()
+    private void ApplyGroundEffect()
     {
         if (state != InteractionState.Moving)
         {
@@ -130,19 +130,38 @@ public class GolfBall : MonoBehaviour
             return;
         }
 
-        Vector3 frictionVelocityDelta = ground.Friction(velocity) * Time.deltaTime;
-        if (velocity == Vector3.zero || frictionVelocityDelta.magnitude > velocity.magnitude)
+        if (ground.HasEffect())
         {
-            velocity = new Vector3();
-            state = InteractionState.Ready;
-            startHit = transform.position;
+            ground.Effect(this);
         }
-        else
+
+        if (ground.HasFriction())
         {
-            velocity += frictionVelocityDelta;
+            Vector3 frictionVelocityDelta = ground.Friction(velocity) * Time.deltaTime;
+            if (velocity == Vector3.zero || frictionVelocityDelta.magnitude > velocity.magnitude)
+            {
+                SetupBall(transform.position);
             }
+            else
+            {
+                velocity += frictionVelocityDelta;
+            }
+        }
 
         GetComponent<Rigidbody>().velocity = velocity;
+    }
+
+    public void ResetBall()
+    {
+        SetupBall(startHit);
+    }
+
+    public void SetupBall(Vector3 position)
+    {
+        transform.position = position;
+        velocity = new Vector3();
+        state = InteractionState.Ready;
+        startHit = transform.position;
     }
 
     void FixedUpdate()
@@ -151,7 +170,7 @@ public class GolfBall : MonoBehaviour
         UpdateHitUI(proposedHit);
 
         ApplyMotion();
-        ApplyDeceleration();
+        ApplyGroundEffect();
     }
 
     private void OnCollisionEnter(Collision collision)
