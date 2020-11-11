@@ -13,7 +13,17 @@ public class ConveyorBelt: Ground
         moveDirection = moveDirection.normalized;
     }
 
-    override public Vector3 Friction(Vector3 currVelocity)
+    public override bool HasFriction()
+    {
+        return false;
+    }
+
+    public override bool HasForce()
+    {
+        return true;
+    }
+
+    public override Vector3 Force()
     {
         return moveDirection * moveForce;
     }

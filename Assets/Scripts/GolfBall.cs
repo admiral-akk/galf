@@ -148,6 +148,11 @@ public class GolfBall : MonoBehaviour
             }
         }
 
+        if (ground.HasForce())
+        {
+            velocity += ground.Force() * Time.deltaTime;
+        }
+
         GetComponent<Rigidbody>().velocity = velocity;
     }
 

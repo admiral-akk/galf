@@ -8,8 +8,6 @@ public class Grass : Ground
 
     override public Vector3 Friction(Vector3 currVelocity)
     {
-        Debug.Log(currVelocity.magnitude);
-        Debug.Log(currVelocity.normalized);
         return deccelerationMagnitude * currVelocity.normalized;
     }
 }
