@@ -5,7 +5,7 @@ using UnityEngine;
 public class GolfBall : MonoBehaviour
 {
     [Header("Physics Properties")]
-    [SerializeField] private float maxVelocity = 25f;
+    [SerializeField] private float maxVelocity = 30f;
 
     [Header("Control Properties")]
     [SerializeField] private float maxPixelDrag = 100f;
@@ -100,8 +100,6 @@ public class GolfBall : MonoBehaviour
 
     private void ApplyMotion()
     {
-        Vector3 displacement = velocity * Time.deltaTime;
-        transform.localPosition += displacement;
     }
 
     private Ground GetGround()

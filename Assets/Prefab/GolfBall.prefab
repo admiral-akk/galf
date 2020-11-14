@@ -321,7 +321,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17da0c0d47e2847cba377d7125d14cc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxVelocity: 20
+  maxVelocity: 30
   maxPixelDrag: 100
   hitUI: {fileID: 8287019369282836086}
 --- !u!1 &8287019369282836087
