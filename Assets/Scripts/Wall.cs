@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class Wall : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    virtual public Vector3 BallVelocity(Vector3 currentVelocity, Collision collision)
     {
-        
+        Vector3 aggNormal = new Vector3();
+        foreach (ContactPoint contact in collision.contacts)
+        {
+            aggNormal += contact.normal;
+        }
+        aggNormal = aggNormal.normalized;
+        float similarity = Vector3.Dot(aggNormal, currentVelocity);
+        return -2 * similarity * aggNormal + currentVelocity;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

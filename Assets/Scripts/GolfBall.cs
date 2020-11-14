@@ -182,15 +182,11 @@ public class GolfBall : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Wall"))
         {
-            Vector3 aggNormal = new Vector3();
-            foreach (ContactPoint contact in collision.contacts)
-            {
-                aggNormal += contact.normal;
-            }
-            aggNormal = aggNormal.normalized;
-            float similarity = Vector3.Dot(aggNormal, velocity);
-            velocity = -2 * similarity * aggNormal + velocity;
+            Debug.Log(state);
+            velocity = collision.gameObject.GetComponent<Wall>().BallVelocity(velocity, collision);
             GetComponent<Rigidbody>().velocity = velocity;
+            state = InteractionState.Moving;
+            Debug.Log(state);
         }
     }
 
