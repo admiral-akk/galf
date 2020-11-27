@@ -22,6 +22,11 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    public string GetLevelName()
+    {
+        return "Level" + levelNumber.ToString();
+    }
+
     public void LoadLevel(Button b)
     {
         SceneManager.LoadScene(b.GetComponentsInChildren<Text>()[0].text.Replace(" ", ""));
@@ -34,7 +39,7 @@ public class LevelManager : MonoBehaviour
 
     public void LoadCurrentLevel()
     {
-        SceneManager.LoadScene("Level" + levelNumber.ToString());
+        SceneManager.LoadScene(GetLevelName());
     }
 
     public bool HasNextLevel()
