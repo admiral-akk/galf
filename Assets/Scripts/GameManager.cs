@@ -26,11 +26,13 @@ public class GameManager : MonoBehaviour
         winUIManager = WinUIManager.instance;
         golfBall = GolfBall.instance;
         winUIManager.RegisterLevelManager(levelManager);
+        winUIManager.SetStrokes(strokes);
     }
 
     public void HitBall()
     {
         strokes++;
+        winUIManager.SetStrokes(strokes);
     }
 
     private void updateLevelScore(int score)
