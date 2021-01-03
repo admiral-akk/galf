@@ -11,6 +11,7 @@ public class Water : Ground
 
     public override void Effect(GolfBall ball)
     {
+        SoundManager.instance.WaterHit();
         ball.ResetBall();
     }
 

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class MusicManager : MonoBehaviour
 {
+    [SerializeField] private AudioClip intro;
+    [SerializeField] private AudioClip loop;
     public static MusicManager instance;
     private AudioSource audioSource;
 
@@ -13,20 +15,15 @@ public class MusicManager : MonoBehaviour
     {
         if (instance == null)
         {
+            DontDestroyOnLoad(this.gameObject);
             instance = this;
             audioSource = GetComponent<AudioSource>();
-            audioSource.Play();
+            audioSource.PlayOneShot(intro);
+            audioSource.PlayDelayed(intro.length - 0.15f);
+
         } else if (instance != null && instance != this)
         {
             Destroy(this.gameObject);
-            return;
         }
-        DontDestroyOnLoad(this.gameObject);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.44657868, g: 0.49641263, b: 0.5748171, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -661,6 +661,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1450153059}
     m_Modifications:
+    - target: {fileID: 1001660367722423421, guid: ffe9ddf4d85fb4f5589b83e711c5ecf8,
+        type: 3}
+      propertyPath: m_Name
+      value: ConveyorBelt
+      objectReference: {fileID: 0}
     - target: {fileID: 114651371951982906, guid: ffe9ddf4d85fb4f5589b83e711c5ecf8,
         type: 3}
       propertyPath: moveDirection.x
@@ -675,11 +680,6 @@ PrefabInstance:
         type: 3}
       propertyPath: moveForce
       value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 1001660367722423421, guid: ffe9ddf4d85fb4f5589b83e711c5ecf8,
-        type: 3}
-      propertyPath: m_Name
-      value: ConveyorBelt
       objectReference: {fileID: 0}
     - target: {fileID: 1001660367722423409, guid: ffe9ddf4d85fb4f5589b83e711c5ecf8,
         type: 3}
@@ -699,17 +699,17 @@ PrefabInstance:
     - target: {fileID: 1001660367722423409, guid: ffe9ddf4d85fb4f5589b83e711c5ecf8,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1001660367722423409, guid: ffe9ddf4d85fb4f5589b83e711c5ecf8,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1001660367722423409, guid: ffe9ddf4d85fb4f5589b83e711c5ecf8,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1001660367722423409, guid: ffe9ddf4d85fb4f5589b83e711c5ecf8,
         type: 3}

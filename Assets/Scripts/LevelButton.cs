@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public class LevelButton : MonoBehaviour
 {
     [SerializeField] private string levelName;
+    [SerializeField] private Text buttonText;
+    [SerializeField] private Text scoreText;
     [SerializeField] private RawImage starImage;
     [SerializeField] private RawImage checkImage;
     private Button button;
@@ -15,11 +17,17 @@ public class LevelButton : MonoBehaviour
     void Awake()
     {
         button = GetComponent<Button>();
-        button.GetComponentInChildren<Text>().text = levelName;
+        buttonText.text = levelName;
     }
 
     private void Start()
     {
+        FileStream stream = File.Open(Application.persistentDataPath + "/test.json", FileMode.OpenOrCreate);
+
+        StreamWriter write = new StreamWriter(stream);
+        write.Write(JsonUtility.ToJson(state));
+        write.Close();
+
         button.onClick.AddListener(() => LevelManager.instance.LoadLevel(button));
         string normalizedLevelName = levelName.Replace(" ", "");
         if (normalizedLevelName != "Level1")
@@ -32,11 +40,12 @@ public class LevelButton : MonoBehaviour
             catch (FormatException f)
             {
             }
-
         }
 
         if (PlayerPrefs.HasKey(normalizedLevelName)) {
-           if (PlayerPrefs.GetInt(normalizedLevelName) <= LevelPar.GetPar(normalizedLevelName))
+           int par = LevelPar.GetPar(normalizedLevelName);
+           int score = PlayerPrefs.GetInt(normalizedLevelName);
+           if (score <= par)
             {
                 starImage.gameObject.SetActive(true);
                 checkImage.gameObject.SetActive(false);
@@ -45,10 +54,12 @@ public class LevelButton : MonoBehaviour
                 starImage.gameObject.SetActive(false);
                 checkImage.gameObject.SetActive(true);
             }
+            scoreText.text = String.Format("{0}/{1}", score, par);
         } else
         {
             starImage.gameObject.SetActive(false);
             checkImage.gameObject.SetActive(false);
+            scoreText.gameObject.SetActive(false);
         }
     }
 
